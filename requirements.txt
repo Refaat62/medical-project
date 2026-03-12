@@ -7,6 +7,7 @@ python-multipart>=0.0.9      # needed for File(...) uploads
 Pillow>=10.3.0
 numpy>=1.26.0
 opencv-python-headless>=4.9.0
+matplotlib>=3.7.0
 
 # TensorFlow (6 of 7 models)
 tensorflow>=2.15.0
