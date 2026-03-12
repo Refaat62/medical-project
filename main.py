@@ -1,6 +1,5 @@
 """
 Medical AI FastAPI — 7 Models in One API
-==========================================
 Models:
   1. Skin Cancer Classification      → /predict/skin
   2. Breast Cancer Seg + Class       → /predict/breast
@@ -54,9 +53,9 @@ def _overlay_to_base64(orig: Image.Image, mask: np.ndarray,
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ──────────────────────────────────────────────────────────────────────────────
+
 # Global model store
-# ──────────────────────────────────────────────────────────────────────────────
+
 MODELS: dict = {}
 
 
@@ -121,7 +120,7 @@ def _download_weight(filename: str) -> str:
     from huggingface_hub import hf_hub_download
     local_path = os.path.join(WEIGHTS_DIR, filename)
     if not os.path.exists(local_path):
-        logger.info(f"⬇️  Downloading {filename} from Hugging Face...")
+        logger.info(f"  Downloading {filename} from Hugging Face...")
         os.makedirs(WEIGHTS_DIR, exist_ok=True)
         downloaded = hf_hub_download(
             repo_id=HF_REPO,
@@ -130,7 +129,7 @@ def _download_weight(filename: str) -> str:
         )
         logger.info(f"✅ {filename} downloaded")
         return downloaded
-    logger.info(f"📦 {filename} already cached locally")
+    logger.info(f" {filename} already cached locally")
     return local_path
 
 
@@ -144,7 +143,7 @@ def load_all_models():
         MODELS["skin"] = tf.keras.models.load_model(path)
         logger.info("✅ Skin model loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Skin model failed: {e}")
+        logger.warning(f"  Skin model failed: {e}")
 
     # 2 ─ Breast (two sub-models)
     try:
@@ -154,7 +153,7 @@ def load_all_models():
         MODELS["breast_cls"] = tf.keras.models.load_model(cls_path)
         logger.info("✅ Breast models loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Breast models failed: {e}")
+        logger.warning(f"  Breast models failed: {e}")
 
     # 3 ─ Eye
     try:
@@ -162,7 +161,7 @@ def load_all_models():
         MODELS["eye"] = tf.keras.models.load_model(path)
         logger.info("✅ Eye model loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Eye model failed: {e}")
+        logger.warning(f"  Eye model failed: {e}")
 
     # 4 ─ Brain
     try:
@@ -175,7 +174,7 @@ def load_all_models():
             MODELS["brain"] = brain_model
         logger.info("✅ Brain model loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Brain model failed: {e}")
+        logger.warning(f"  Brain model failed: {e}")
 
     # 5 ─ Heart
     try:
@@ -184,7 +183,7 @@ def load_all_models():
         MODELS["heart"].load_weights(path)
         logger.info("✅ Heart model loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Heart model failed: {e}")
+        logger.warning(f"  Heart model failed: {e}")
 
     # 6 ─ Lung (PyTorch)
     try:
@@ -199,7 +198,7 @@ def load_all_models():
         MODELS["lung"] = m
         logger.info("✅ Lung model loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Lung model failed: {e}")
+        logger.warning(f" Lung model failed: {e}")
 
     # 7 ─ Kidney
     try:
@@ -212,10 +211,10 @@ def load_all_models():
             MODELS["kidney"] = kidney_model
         logger.info("✅ Kidney model loaded")
     except Exception as e:
-        logger.warning(f"⚠️  Kidney model failed: {e}")
+        logger.warning(f"  Kidney model failed: {e}")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+
 # U-Net builder (Heart)
 # ──────────────────────────────────────────────────────────────────────────────
 def _build_unet(input_shape=(128, 128, 1)):
@@ -256,9 +255,9 @@ def _build_unet(input_shape=(128, 128, 1)):
     return tf.keras.models.Model(inputs, outputs)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+
 # App lifecycle
-# ──────────────────────────────────────────────────────────────────────────────
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_all_models()
@@ -281,9 +280,9 @@ app.add_middleware(
 )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+
 # Utility
-# ──────────────────────────────────────────────────────────────────────────────
+
 async def read_image(file: UploadFile) -> Image.Image:
     data = await file.read()
     return Image.open(io.BytesIO(data))
@@ -294,15 +293,15 @@ def _require(key: str):
         raise HTTPException(503, f"Model '{key}' is not loaded. Check weight file.")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+
 # Root
-# ──────────────────────────────────────────────────────────────────────────────
-# ══════════════════════════════════════════════════════════════════════════════
+
+
 # RECOMMENDATIONS — Arabic medical info for every disease
-# ══════════════════════════════════════════════════════════════════════════════
+
 RECOMMENDATIONS = {
 
-    # ── Skin ──────────────────────────────────────────────────────────────────
+    # 1 Skin 
     "AK": {
         "disease_name": "AK — Actinic Keratosis",
         "description": "آفة جلدية تظهر نتيجة التعرض المفرط للشمس وتُعدّ مرحلة ما قبل سرطانية، قابلة للتحول لسرطان إذا تُركت دون علاج.",
@@ -392,7 +391,7 @@ RECOMMENDATIONS = {
         ],
     },
 
-    # ── Breast ────────────────────────────────────────────────────────────────
+    # 2 Breast 
     "benign": {
         "disease_name": "Benign — ورم حميد",
         "description": "الورم الحميد لا ينتشر ولا يشكّل خطراً مباشراً، لكن يجب متابعته طبياً بانتظام للتأكد من عدم تغيّره.",
@@ -427,7 +426,7 @@ RECOMMENDATIONS = {
         ],
     },
 
-    # ── Eye ───────────────────────────────────────────────────────────────────
+    # 3 Eye 
     "Cataract": {
         "disease_name": "Cataract — إعتام عدسة العين",
         "description": "تعتّم في عدسة العين الطبيعية يؤدي إلى ضبابية في الرؤية. شائع مع التقدم في السن وقابل للعلاج الجراحي.",
@@ -473,7 +472,7 @@ RECOMMENDATIONS = {
         ],
     },
 
-    # ── Brain ─────────────────────────────────────────────────────────────────
+    # 4 Brain 
     "glioma": {
         "disease_name": "Glioma — ورم الغليوما",
         "description": "نوع من أورام المخ ينشأ من الخلايا الدبقية. يتراوح بين درجات منخفضة الخطورة وأخرى عالية الخطورة.",
@@ -519,7 +518,7 @@ RECOMMENDATIONS = {
         ],
     },
 
-    # ── Heart ─────────────────────────────────────────────────────────────────
+    # 5 Heart 
     "normal": {
         "disease_name": "Normal — حجم القلب طبيعي",
         "description": "منطقة القلب المكتشفة في الصورة تقع ضمن النطاق الطبيعي المتوقع.",
@@ -563,7 +562,7 @@ RECOMMENDATIONS = {
         ],
     },
 
-    # ── Lung ──────────────────────────────────────────────────────────────────
+    # 6 Lung 
     "Tuberculosis": {
         "disease_name": "Tuberculosis — السل الرئوي",
         "description": "عدوى بكتيرية تصيب الرئتين وتنتشر عن طريق الهواء. من أعراضها السعال المزمن ونزول الدم والتعرق الليلي وفقدان الوزن.",
@@ -631,7 +630,7 @@ RECOMMENDATIONS = {
         ],
     },
 
-    # ── Kidney ────────────────────────────────────────────────────────────────
+    # 7 Kidney 
     "Cyst": {
         "disease_name": "Cyst — كيس في الكلى",
         "description": "تجمّع سائل في الكلى يشكّل كيساً. معظم الأكياس حميدة ولا تسبب أعراضاً، لكن تحتاج متابعة.",
@@ -701,9 +700,9 @@ def health():
     return {"status": "ok", "loaded_models": list(MODELS.keys())}
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 1 ─ SKIN
-# ══════════════════════════════════════════════════════════════════════════════
+
 SKIN_LABELS = ["AK", "BCC", "BKL", "DF", "MEL", "NV", "SCC", "VASC"]
 SKIN_NAMES  = {
     "AK": "Actinic Keratosis",
@@ -757,9 +756,9 @@ async def predict_skin(file: UploadFile = File(...)):
     }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 2 ─ BREAST
-# ══════════════════════════════════════════════════════════════════════════════
+# ................................................................
 BREAST_CLASSES = ["benign", "malignant", "normal"]
 
 
@@ -814,9 +813,9 @@ async def predict_breast(file: UploadFile = File(...)):
     }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 3 ─ EYE
-# ══════════════════════════════════════════════════════════════════════════════
+# ................................................................
 EYE_CLASSES = ["Cataract", "Diabetic Retinopathy", "Glaucoma", "Normal"]
 
 
@@ -855,9 +854,9 @@ async def predict_eye(file: UploadFile = File(...)):
     }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 4 ─ BRAIN
-# ══════════════════════════════════════════════════════════════════════════════
+# ................................................................
 BRAIN_CLASSES = ["glioma", "meningioma", "notumor", "pituitary"]
 
 
@@ -897,9 +896,9 @@ async def predict_brain(file: UploadFile = File(...)):
     }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 5 ─ HEART
-# ══════════════════════════════════════════════════════════════════════════════
+# ................................................................
 @app.post("/predict/heart")
 async def predict_heart(file: UploadFile = File(...)):
     """
@@ -954,9 +953,9 @@ async def predict_heart(file: UploadFile = File(...)):
     }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 6 ─ LUNG (PyTorch)
-# ══════════════════════════════════════════════════════════════════════════════
+# ................................................................
 LUNG_CLASSES = [
     "Tuberculosis", "Pneumonia-Viral", "Pneumonia-Bacterial",
     "Normal", "Emphysema", "Covid-19",
@@ -1007,9 +1006,9 @@ async def predict_lung(file: UploadFile = File(...)):
     }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 # 7 ─ KIDNEY
-# ══════════════════════════════════════════════════════════════════════════════
+# ................................................................
 KIDNEY_CLASSES = ["Cyst", "Normal", "Stone", "Tumor"]
 
 
@@ -1043,4 +1042,5 @@ async def predict_kidney(file: UploadFile = File(...)):
             "description": rec.get("description", ""),
             "recommendations": rec.get("recommendations", []),
         },
+
     }
