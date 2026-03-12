@@ -8,7 +8,7 @@ medical_api/
 ├── model_lung.py        ← PyTorch architecture للـ Lung model
 ├── requirements.txt     ← كل الـ dependencies
 ├── README.md
-└── weights/             ← ضع ملفات الأوزان هنا
+└── weights/            
     ├── ImranIsicModel.keras
     ├── Final Final Breast Cancer Segmentation.h5
     ├── bes__model.h5
